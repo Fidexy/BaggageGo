@@ -2027,11 +2027,13 @@ def test_the_map_names_itself_in_words_the_server_keeps_true(client):
     assert re.search(r'class="seat \w+ is-you" data-seat="1A"', figure)
 
 
-def test_the_card_adds_three_marks_and_no_second_drawing():
-    """The card's CSS is allowed a width-solved pitch, two marks and the map's
+def test_the_card_adds_its_own_marks_and_no_second_drawing():
+    """The card's CSS is allowed a width-solved pitch, its own marks and the map's
     fuselage line (Davis, 2026-11-14). Anything that redraws a rectangle — a lane
     width, a ramp colour, a second cabin — is the drift this trial removed, so
-    those are what this test is really about."""
+    those are what this test is really about. The accessibility mark lives outside
+    this slice, and only inside the coloured rectangle when the reader asks for
+    it (`test_colourblind_mode_counts_the_bin_ramp`)."""
     css = (server_v1.STATIC_DIR / "style.css").read_text(encoding="utf-8")
     card = css[css.index("the cabin, on the card"):css.index("bag picker")]
     rules = re.sub(r"/\*.*?\*/", "", card, flags=re.S)   # comments are not declarations
@@ -2075,6 +2077,98 @@ def test_the_card_adds_three_marks_and_no_second_drawing():
     code = inspect.getsource(server_v1.card_cabin_html).split('"""')[2]
     assert "cabin_html(" in code, "the card must draw with the board's function"
     assert "cabin_bin_rows(" not in code, "the card is tiling zones on its own again"
+
+
+# --------------------------------------------------------- accessibility
+# The ticket page carries one control the board does not: the reader's own text
+# size and a colour-blind mode. Both are device preferences applied before paint;
+# neither is allowed to invent a colour or a bin level — the size is three root
+# font-size rules and the mode is a state that reveals server-rendered icons.
+
+def test_the_card_wears_an_accessibility_control(client):
+    html = client.get(f"/bggo/{KNOWN}").text
+    assert 'id="a11y-toggle"' in html and 'id="a11y-panel"' in html
+    assert re.search(r'id="a11y-toggle"[^>]*aria-expanded="false"', html)
+    assert re.search(r'id="a11y-toggle"[^>]*aria-controls="a11y-panel"', html)
+    for step in (1, 2, 3):
+        assert f'id="a11y-text-{step}"' in html
+    assert 'id="a11y-cb"' in html
+    # the board is a projector the audience does not hold: no reader controls
+    assert 'id="a11y-toggle"' not in client.get("/bggo/live").text
+
+
+def test_the_readers_choice_is_applied_before_paint(client):
+    """The size has to be on <html> before the body renders, or the first paint
+    is the default size and the card visibly jumps. So the choice is read by an
+    inline head script, and app.js only drives the panel afterwards."""
+    html = client.get(f"/bggo/{KNOWN}").text
+    head = html[: html.index("</head>")]
+    assert 'localStorage.getItem("bggo-a11y")' in head
+    assert "document.documentElement.dataset.a11yText" in head
+    assert "document.documentElement.dataset.a11yCb" in head
+
+
+def test_text_size_is_three_root_steps():
+    css = (server_v1.STATIC_DIR / "style.css").read_text(encoding="utf-8")
+    steps = re.findall(r'html\[data-a11y-text="(\d)"\]\s*{\s*font-size:\s*(\d+)%', css)
+    assert [value for value, _ in steps] == ["1", "2", "3"]
+    assert [int(percent) for _, percent in steps] == [100, 120, 140]
+    # the root font-size is what scales, so the body must follow it rather than
+    # pinning text at a fixed 16px
+    body = re.search(r"\nbody\s*{([^}]*)\}", css).group(1)
+    assert "font-size: 1rem" in body and "font-size: 16px" not in body
+
+
+def test_colourblind_mode_counts_the_bin_ramp():
+    """One bag per step — green 1, yellow 2, red 3 — and the cross for the fourth
+    fact only: past capacity, not the whole of red."""
+    css = (server_v1.STATIC_DIR / "style.css").read_text(encoding="utf-8")
+    cb = css[css.index("colour-blind mode"):]
+    assert re.search(r'\.cabin-bin\.load-green\s+\.bin-status\s+\.bs-bag:nth-child\(1\)', cb)
+    assert re.search(r'\.cabin-bin\.load-yellow\s+\.bin-status\s+\.bs-bag:nth-child\(-n\+2\)', cb)
+    assert re.search(r'\.cabin-bin\.load-red\s+\.bin-status\s+\.bs-bag:nth-child\(-n\+3\)', cb)
+    assert re.search(r'\.cabin-bin\.is-over\s+\.bin-status\s+\.bs-cross\s*{\s*display:\s*block', cb), \
+        "the cross is not tied to past capacity"
+    # a mark, not a repaint: ink from a token, and no touch of the swatch
+    assert "color: var(--ink)" in cb
+    assert "mask-image" not in css, "a glyph is inlined with currentColor, not masked"
+
+
+def test_the_advice_carries_the_past_capacity_flag_the_cross_is_drawn_on():
+    """`is-over` is the fourth fact the ramp cannot state; it has to travel with
+    the advice so a check-in that pushes a zone over capacity draws the cross."""
+    loads = server_v1.bin_index(shed(4, {(1, "left"): 8.0, (1, "right"): 9.5}))
+    red = server_v1.stow_payload(4, "1A", "own", "own", (1, "left"), (1, "left"),
+                                 loads[(1, "left")]["units"], loads)
+    over = server_v1.stow_payload(4, "1A", "own", "own", (1, "right"), (1, "right"),
+                                  loads[(1, "right")]["units"], loads)
+    assert red["level"] == "red" and red["over"] is False
+    assert over["level"] == "red" and over["over"] is True
+    js = (server_v1.STATIC_DIR / "app.js").read_text(encoding="utf-8")
+    assert 'classList.toggle("is-over", !!advice.over)' in js
+
+
+def test_the_card_carries_the_colourblind_icons_for_every_zone(client):
+    figure = card_map(client.get(f"/bggo/{KNOWN}").text)
+    zones = re.findall(r'<span class="cabin-bin[^"]*"[^>]*>', figure)
+    assert figure.count('class="bin-status"') == len(zones)
+    assert figure.count('class="bs-bag"') == 3 * len(zones)
+    assert figure.count('class="bs-cross"') == len(zones)
+    # one sprite, not one set of paths per bin
+    assert figure.count('id="bin-status-bag"') == 1
+    assert figure.count('id="bin-status-full"') == 1
+    # and the board pays nothing for a phone setting
+    board = client.get("/bggo/live?view=seats").text
+    assert "bin-status" not in board and "bin-status-bag" not in board
+
+
+def test_the_accessibility_panel_can_open_while_the_picker_is_up():
+    """The picker is what a first-time reader sees, so the control has to sit
+    above its scrim or the reader cannot reach it exactly when they need it."""
+    css = (server_v1.STATIC_DIR / "style.css").read_text(encoding="utf-8")
+    appbar = int(re.search(r"\.appbar\s*{[^}]*z-index:\s*(\d+)", css, re.S).group(1))
+    picker = int(re.search(r"\.picker-wrap\s*{[^}]*z-index:\s*(\d+)", css, re.S).group(1))
+    assert appbar > picker, "the accessibility control hides under the bag picker"
 
 
 def test_the_card_script_re_points_the_map_instead_of_redrawing_it():

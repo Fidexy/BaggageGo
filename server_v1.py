@@ -1105,13 +1105,81 @@ APP_TABS = (
 CURRENT_TAB = "Check-in"
 
 
+# ------------------------------------------------------------ accessibility
+# The ticket page carries one control the board does not: the reader's own text
+# size and a colour-blind mode. Both are preferences of the person holding the
+# phone, so they live on the device (localStorage) and the inline head script
+# below applies them before paint — a choice that only landed after the deferred
+# app.js had run would flash the default size first.
+
+# The one script that runs before paint. Inline and in <head>, because the whole
+# point is to have the attribute on <html> before the first stylesheet paint. It
+# is deliberately small and silent on failure: a browser that refuses
+# localStorage still gets the default ticket.
+A11Y_HEAD = """<script>
+(function () {
+  try {
+    var saved = JSON.parse(localStorage.getItem("bggo-a11y") || "{}");
+    var size = String(saved.text || 1);
+    if (size !== "1" && size !== "2" && size !== "3") size = "1";
+    document.documentElement.dataset.a11yText = size;
+    if (saved.cb) document.documentElement.dataset.a11yCb = "on";
+  } catch (e) {}
+})();
+</script>"""
+
+A11Y_ICON = (
+    '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor"'
+    ' stroke-width="2" stroke-linecap="round">'
+    '<circle cx="12" cy="4.6" r="1.9" fill="currentColor" stroke="none"/>'
+    '<path d="M4.6 8.7h14.8"/>'
+    '<path d="M12 8.7v5.3"/>'
+    '<path d="M12 14l-3.5 6.4"/>'
+    '<path d="M12 14l3.5 6.4"/>'
+    '</svg>'
+)
+
+
+def a11y_html() -> str:
+    """The reader's own two choices, hung under the app bar.
+
+    Text size is three radio steps — radio, not one cycling button, so the current
+    step is visible without pressing it. Colour-blind mode is one switch. Both are
+    stored on the device; this markup is only the control surface. The size is
+    three CSS rules keyed off `html[data-a11y-text]`, and colour-blind mode is a
+    stylesheet state, so nothing here (or in the script) computes a colour, a
+    level or an icon count.
+    """
+    radios = "".join(
+        f'<label><input type="radio" name="a11y-text" id="a11y-text-{value}"'
+        f' value="{value}"><span>{label}</span></label>'
+        for value, label in ((1, "Standard"), (2, "Large"), (3, "Larger"))
+    )
+    return f"""<div class="a11y">
+  <button class="a11y-btn" id="a11y-toggle" type="button" aria-expanded="false" aria-controls="a11y-panel" aria-label="Accessibility options">{A11Y_ICON}</button>
+  <div class="a11y-panel" id="a11y-panel" hidden role="group" aria-label="Accessibility options">
+    <fieldset class="a11y-group">
+      <legend>Text size</legend>
+      <div class="a11y-sizes">{radios}</div>
+    </fieldset>
+    <label class="a11y-switch" for="a11y-cb">
+      <input type="checkbox" id="a11y-cb">
+      <span>Colour-blind friendly bin icons</span>
+    </label>
+  </div>
+</div>"""
+
+
 def app_bar_html(seat: str | None = None) -> str:
-    """The airline's app bar: its wordmark, and the passenger's seat.
+    """The airline's app bar: its wordmark, the passenger's seat, and the one
+    control the reader owns.
 
     The seat is here and not only on the card because the card is forty rows
     tall: the one fact its owner must not scroll away from stays pinned with
     the chrome. Without a passenger there is no seat, and the bar says nothing
-    rather than inventing one.
+    rather than inventing one. The accessibility control is pinned here for the
+    same reason the seat is: a reader who needs it must not have to scroll to
+    the end of a boarding pass to find it.
     """
     seat_html = (
         f'<p class="appbar-seat"><span>Seat</span> <b>{esc(seat)}</b></p>'
@@ -1119,7 +1187,7 @@ def app_bar_html(seat: str | None = None) -> str:
     )
     return (
         '<header class="appbar"><div class="appbar-inner">'
-        f'{hke_wordmark()}{seat_html}'
+        f'{hke_wordmark()}<div class="appbar-right">{seat_html}{a11y_html()}</div>'
         '</div></header>'
     )
 
@@ -1293,6 +1361,7 @@ def passenger_html(p: dict, code: str, mix: dict | None = None, *, notice: str |
 <script src="{asset_url(STATIC_DIR / 'app.js', f'{BASE}/static/app.js')}" data-code="{esc(code)}" defer></script>
 """,
         page="card-page",
+        extra_head=A11Y_HEAD,
     )
 
 
@@ -1315,6 +1384,7 @@ def no_booking_html(code: str) -> str:
 <script src="{asset_url(STATIC_DIR / 'app.js', f'{BASE}/static/app.js')}" data-code="{esc(code)}" defer></script>
 """,
         page="card-page",
+        extra_head=A11Y_HEAD,
     )
 
 
@@ -1498,6 +1568,35 @@ def bin_level(units: float) -> tuple[str, bool]:
 # so the two can never spell the same load two ways.
 BIN_LEVEL_TEXT = {"green": "mostly empty", "yellow": "filling", "red": "full"}
 
+# The colour-blind mode's two glyphs, inlined once each so the map can `<use>`
+# them per bin: a filled suitcase and a cross. They live here rather than in
+# static/icons because the four picker bags are a fixed list the tests pin, and
+# these two are a rendering detail of one stylesheet state on one surface. The
+# `<symbol>` sprite is emitted once with the card's map; a `<use>` per icon keeps
+# the repeated markup to a few bytes. `fill`/`stroke` are currentColor, so the
+# stylesheet owns their colour and this file carries no hex.
+BIN_STATUS_BAG = (
+    '<svg class="bs-bag" viewBox="0 0 24 24" aria-hidden="true">'
+    '<use href="#bin-status-bag" xlink:href="#bin-status-bag"></use></svg>'
+)
+BIN_STATUS_CROSS = (
+    '<svg class="bs-cross" viewBox="0 0 24 24" aria-hidden="true">'
+    '<use href="#bin-status-full" xlink:href="#bin-status-full"></use></svg>'
+)
+BIN_STATUS_SPRITE = (
+    '<svg class="bin-glyphs" width="0" height="0" aria-hidden="true" focusable="false">'
+    '<defs>'
+    '<symbol id="bin-status-bag" viewBox="0 0 24 24" fill="currentColor">'
+    '<rect x="4" y="6" width="16" height="15" rx="2.6"/>'
+    '<path d="M8.6 6V4.4A2.4 2.4 0 0 1 11 2h2a2.4 2.4 0 0 1 2.4 2.4V6h-1.9V4.6a.6.6 0 0 0-.6-.6h-1.4a.6.6 0 0 0-.6.6V6H8.6Z"/>'
+    '</symbol>'
+    '<symbol id="bin-status-full" viewBox="0 0 24 24" fill="none"'
+    ' stroke="currentColor" stroke-width="4" stroke-linecap="round">'
+    '<path d="M5 5l14 14M19 5L5 19"/>'
+    '</symbol>'
+    '</defs></svg>'
+)
+
 
 def cabin_bin_rows(rows: int) -> list[tuple[int, tuple[int, ...]]]:
     """Each merged **zone** as `(anchor row, the seat rows it hangs over)`.
@@ -1610,7 +1709,8 @@ def bin_loads(passengers: list[dict], rows: int) -> list[dict]:
 
 def cabin_html(seats: dict, *, scanned: int, allocated: int, bins: list[dict] | None = None,
                advice: dict | None = None, own: str | None = None,
-               label: str | None = None, units_in_titles: bool = True) -> str:
+               label: str | None = None, units_in_titles: bool = True,
+               status_icons: bool = False) -> str:
     """The cabin: the seat grid and its labels, with an exit marker in its own
     empty band wherever there is a door.
 
@@ -1648,6 +1748,12 @@ def cabin_html(seats: dict, *, scanned: int, allocated: int, bins: list[dict] | 
     board passes it), `own` marks the ticket's own square, `label` replaces the
     cabin's own accessible name with the card's sentence, and every zone carries
     `data-name` (`1-4R`) so a client can find it by the name the advice uses.
+
+    `status_icons` adds the colour-blind mode's inside-the-rectangle mark — one
+    bag per step of the ramp and a cross past capacity — and only the card asks
+    for it: it is a reader's device preference, so the markup is always rendered
+    and the stylesheet decides whether it is shown. The board never carries it, so
+    a projector is not paying bytes for a phone setting.
     """
     letters = list(seats["letters"])
     side = seats["side"]
@@ -1705,6 +1811,20 @@ def cabin_html(seats: dict, *, scanned: int, allocated: int, bins: list[dict] | 
         title = load["title"] if units_in_titles else f'{name} · {BIN_LEVEL_TEXT[load["level"]]}'
         if advice and advice.get("level") and advice.get("bin") == name:
             classes += " is-advised"
+        # The colour-blind mark: three bags, always in the DOM, revealed one per
+        # step of the ramp by `.load-green`/`-yellow`/`-red`; the cross is drawn on
+        # `is-over` and nowhere else, because "past capacity" is the fourth fact
+        # the ramp's three colours cannot carry. The count rides the class the
+        # server already sets, so app.js re-pointing a zone's level re-counts its
+        # icons for free — no script decides how many bags a zone shows.
+        status = ""
+        if status_icons:
+            status = (
+                '<span class="bin-status" aria-hidden="true">'
+                + BIN_STATUS_BAG * 3
+                + BIN_STATUS_CROSS
+                + "</span>"
+            )
         # `data-bin` carries the ANCHOR ROW. That is the key `bins` uses in the
         # payload and the key board.js looks up, so the poll can find this element
         # and repaint it. `data-slot` keeps the slot tiling (`"1+2+3+4"`) that the
@@ -1715,7 +1835,7 @@ def cabin_html(seats: dict, *, scanned: int, allocated: int, bins: list[dict] | 
             f' data-level="{load["level"]}" data-bags="{load["bags"]}"'
             f' data-name="{esc(name)}"'
             f' style="--bin-slots:{slots}"'
-            f' title="{esc(title)}"></span>'
+            f' title="{esc(title)}">{status}</span>'
         )
 
     def marker(row: int, which: str) -> str:
@@ -1921,6 +2041,9 @@ def stow_payload(rows: int, seat: str, reason: str, state: str,
         "level": chosen["level"],
         "level_text": BIN_LEVEL_TEXT[chosen["level"]],
         "units": chosen["units"],
+        # the fourth fact, past capacity: the card's colour-blind cross is drawn on
+        # it, so it has to travel with the advice the scan response repaints
+        "over": bool(chosen.get("over")),
         "capacity": BIN_CAPACITY,
         "label": "Where to put your bag",
         "declared": declared,
@@ -2170,12 +2293,14 @@ def card_cabin_html(seats: dict, bins: list[dict], advice: dict) -> str:
         own=own,
         label=card_cabin_label(seats, advice),
         units_in_titles=False,
+        status_icons=True,
     )
     return (
         f'<figure class="cabin-card" id="cabin-map"'
         f' data-seat="{esc(own or "")}">'
         f'<p class="cm-key">{keys}</p>'
         f"{body}"
+        f"{BIN_STATUS_SPRITE}"
         "</figure>"
     )
 

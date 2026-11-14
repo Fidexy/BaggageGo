@@ -11,6 +11,108 @@
 (function () {
   "use strict";
 
+  /* ---- accessibility: the reader's text size and colour-blind mode ----
+
+     Both choices belong to the person holding the phone, so they are stored per
+     device and already applied before paint by the inline head script; this block
+     only drives the panel and writes the choice back. Nothing here paints an icon
+     or picks a colour: text size is an attribute on <html> that three stylesheet
+     rules read, and colour-blind mode is a second attribute that reveals the bin
+     icons the server already rendered. */
+
+  var A11Y_KEY = "bggo-a11y";
+
+  function a11yRead() {
+    try {
+      var saved = JSON.parse(window.localStorage.getItem(A11Y_KEY) || "{}");
+      var size = String((saved && saved.text) || 1);
+      if (size !== "1" && size !== "2" && size !== "3") size = "1";
+      return { text: size, cb: !!(saved && saved.cb) };
+    } catch (e) {
+      return { text: "1", cb: false };
+    }
+  }
+
+  function a11yWrite(state) {
+    try {
+      window.localStorage.setItem(A11Y_KEY, JSON.stringify(state));
+    } catch (e) {
+      /* a browser that refuses storage still gets a working control this visit */
+    }
+  }
+
+  function a11yApply(state) {
+    var root = document.documentElement;
+    root.dataset.a11yText = state.text;
+    if (state.cb) root.dataset.a11yCb = "on";
+    else delete root.dataset.a11yCb;
+  }
+
+  var a11yToggle = document.getElementById("a11y-toggle");
+  var a11yPanel = document.getElementById("a11y-panel");
+  var a11yCb = document.getElementById("a11y-cb");
+  var a11yState = a11yRead();
+
+  function a11ySync() {
+    a11yApply(a11yState);
+    if (a11yCb) a11yCb.checked = a11yState.cb;
+    for (var i = 1; i <= 3; i++) {
+      var radio = document.getElementById("a11y-text-" + i);
+      if (radio) radio.checked = String(i) === a11yState.text;
+    }
+  }
+
+  function a11yOpen(show) {
+    if (!a11yToggle || !a11yPanel) return;
+    // closing takes the focus out before the panel is hidden, so an outside click
+    // does not drop a keyboard reader onto the document body
+    if (!show && a11yPanel.contains(document.activeElement)) a11yToggle.focus();
+    a11yPanel.hidden = !show;
+    a11yToggle.setAttribute("aria-expanded", show ? "true" : "false");
+    if (show) {
+      var current = document.getElementById("a11y-text-" + a11yState.text);
+      if (current) current.focus();
+    }
+  }
+
+  function a11yRemember(state) {
+    a11yState = state;
+    a11yApply(a11yState);
+    a11yWrite(a11yState);
+  }
+
+  if (a11yToggle && a11yPanel) {
+    a11yToggle.addEventListener("click", function () {
+      a11yOpen(a11yPanel.hidden);
+    });
+    document.addEventListener("click", function (event) {
+      if (a11yPanel.hidden) return;
+      if (event.target && event.target.closest && event.target.closest(".a11y")) return;
+      a11yOpen(false);
+    });
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape" && !a11yPanel.hidden) {
+        a11yOpen(false);
+        a11yToggle.focus();
+      }
+    });
+    [1, 2, 3].forEach(function (step) {
+      var radio = document.getElementById("a11y-text-" + step);
+      if (!radio) return;
+      radio.addEventListener("change", function () {
+        if (!radio.checked) return;
+        a11yRemember({ text: String(step), cb: a11yState.cb });
+      });
+    });
+    if (a11yCb) {
+      a11yCb.addEventListener("change", function () {
+        a11yRemember({ text: a11yState.text, cb: a11yCb.checked });
+      });
+    }
+  }
+
+  a11ySync();
+
   var script = document.currentScript;
   var code = script && script.dataset ? script.dataset.code : null;
   var status = document.getElementById("status");
@@ -80,6 +182,9 @@
     ["green", "yellow", "red"].forEach(function (level) {
       target.classList.toggle("load-" + level, level === advice.level);
     });
+    // the fourth fact, past capacity, is a class like the other three: the
+    // colour-blind cross and the heavier edge are both drawn on it in CSS
+    target.classList.toggle("is-over", !!advice.over);
   }
 
   function say(text, state) {
