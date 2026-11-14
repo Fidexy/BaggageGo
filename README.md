@@ -1,7 +1,7 @@
 # BaggageGO
 
-BaggageGO is a lightweight passenger baggage demo for a live event. Passengers open a
-boarding-pass link, choose their bags, and the live board updates for the operator. It
+Lightweight passenger boarding demo for a Cathay Hackathon 2026. Audience members open a
+boarding-pass link, choose their bags, and the live board updates for the pitch demo. It
 runs as a FastAPI application backed by SQLite and is packaged as a single Docker
 container.
 
@@ -9,7 +9,8 @@ container.
 
 The hosted base URL is <!--repo-base-->https://sophon1.dedyn.io<!--/repo-base-->.
 Append `/bggo/live` for the live board or `/bggo/<CODE>` for a passenger card. Sample
-passenger links are listed in [`tickets.md`](tickets.md).
+ticket links are listed in [`tickets.md`](tickets.md). For the pitch demo, boarding passes with ticket links are printed.
+The server is hosted on a homelab environment.
 
 ## Run with Docker
 
