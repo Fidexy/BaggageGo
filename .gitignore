@@ -22,9 +22,10 @@ snapshots/
 # ── working docs, not part of the demo ─────────────────────────────────────
 # Agent scope, the open work and the two stage plans: ours, not the repo's. None
 # is read by the running demo (the Dockerfile copies an explicit file list) and
-# none is named in the README's project layout. The files stay on disk, untracked
-# — the pattern ~/Hackathon uses for its deprecated trees — so publish.sh, which
-# compares working trees and not indexes, sees no drift.
+# none is named in the README's project layout, so none of it belongs in the
+# submitted repo. The files stay on disk, untracked — the same pattern
+# ~/Hackathon uses for its deprecated trees — and the rollback net version them
+# with `git add -f` (they were ignored *nowhere* before 2026-11-15).
 # NOT here on purpose: README.md and the deploy/ runbooks are the published
 # repo's front page and its deployment notes.
 AGENTS.md

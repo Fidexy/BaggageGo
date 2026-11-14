@@ -66,11 +66,11 @@ def load_rows(db_path: Path) -> list[dict]:
 def render(rows: list[dict], base: str = PUBLIC_BASE) -> str:
     """The list, with the same shape whatever the base is.
 
-    That is deliberate: this file gets regenerated with a different base when it is
-    published (see deploy/publish.sh), and the two renderings have to be identical
-    apart from the base itself, so the difference can be *verified* rather than
-    assumed. So there is no conditional prose here — one fixed block, two hostnames
-    named, and an explanation that is true in both cases.
+    That is deliberate: hosting the demo elsewhere means regenerating this file with
+    a different base (`BGGO_PUBLIC_BASE`), and the two renderings have to be
+    identical apart from the base itself, so the difference can be *verified* rather
+    than assumed. So there is no conditional prose here — one fixed block, two
+    hostnames named, and an explanation that is true in both cases.
     """
     out = [
         "# BaggageGO — every ticket link",

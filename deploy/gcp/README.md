@@ -71,7 +71,7 @@ The QR payload still never changes — nothing is reprinted; but the A record fo
 3. Deploy the front door:
 
    ```bash
-   cd BaggageGo   # the repo root
+   cd ~/Hackathon/pitch-demo   # the repo root
    # .env next to failover/compose.yaml:
    #   SITE_HOST=sophon1.dedyn.io
    #   HOMELAB_UPSTREAM=https://home.sophon1.dedyn.io   (the DDNS name)
@@ -136,7 +136,7 @@ login`, a billing account on the project. No local Docker: the image is built by
 Cloud Build from the repo root.
 
 ```bash
-cd BaggageGo   # the repo root
+cd ~/Hackathon/pitch-demo   # the repo root
 PROJECT=your-project-id REGION=us-central1 ./deploy/gcp/deploy-vm.sh
 ```
 
@@ -197,7 +197,7 @@ PROJECT=your-project-id REGION=us-central1 ./deploy/gcp/deploy-vm.sh
 ## Path B — a Cloud Run URL in ten minutes
 
 ```bash
-cd BaggageGo   # the repo root
+cd ~/Hackathon/pitch-demo   # the repo root
 PROJECT=your-project-id ./deploy/gcp/deploy-cloud-run.sh
 ```
 

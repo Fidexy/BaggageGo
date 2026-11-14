@@ -94,34 +94,24 @@ docker compose exec -T demo python seed_passengers.py --check    # db invariants
 
 ## Publishing to the submitted repo
 
-Two trees exist, and only one of them is ever edited by hand:
-
-| | |
-|---|---|
-| `~/Hackathon/pitch-demo` | the **source**. The container builds from it; all edits happen here |
-| `~/BaggageGo` | the **submitted repo** (`Fidexy/BaggageGo`), and it is *derived* — never edit it directly |
-
-They must stay identical **except for the link base**: the repo's links should point
-at a host that stays up for whoever reads it, while the working copy keeps naming the
-host that is on the printed passes.
+There is one tree, and it is the repo. `~/Hackathon/pitch-demo` is both the tree this
+container builds from and the submitted repo
+(`git@github.com:Fidexy/BaggageGo-A.git`, branch `main`), so publishing is a commit and
+a push (Davis, 2026-11-15):
 
 ```bash
-./deploy/publish.sh --check        # verify the invariant, change nothing
-./deploy/publish.sh                # sync + set the link base, do not commit
-REPO_BASE=https://… ./deploy/publish.sh --push
+cd ~/Hackathon/pitch-demo
+git add <explicit paths>     # two pi sessions commit here: never `git add -A`
+git commit -m "…" && git push origin main
 ```
 
-What it does: rsync the working tree over the repo, regenerate `tickets.md` against
-`REPO_BASE`, rewrite the one marked line in `README.md`
-(`<!--repo-base-->…<!--/repo-base-->`), and then **compare the two trees file by
-file**. Only those two files may differ — and even they are compared with *both*
-bases erased, so a README that differs for some other reason is drift too. Anything
-unexplained makes the script refuse to publish and name the file. Editing the repo
-directly is caught the same way.
+The older model — a derived `~/BaggageGo` kept byte-identical by `deploy/publish.sh` —
+is gone: the script is deleted and `~/BaggageGo` is a dead copy to ignore.
 
-`REPO_BASE=https://sophon1.dedyn.io ./deploy/publish.sh --push` puts the trees back
-in exact agreement, which is the state we are in while the printed host is also the
-one we want reviewers to use.
+The one idea worth keeping from it is the **link base**. `tickets.md` is generated, and
+`BGGO_PUBLIC_BASE` renders it against another host (a Cloud copy, say) without touching
+the codes; the printed QRs stay frozen on `sophon1.dedyn.io` no matter what the list
+says. `README.md` names the host once, inside `<!--repo-base-->…<!--/repo-base-->`.
 
 ## Pitch-day checklist
 

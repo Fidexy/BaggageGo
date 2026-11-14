@@ -5,10 +5,10 @@ at a *different* host (a Cloud copy, say) with `BGGO_PUBLIC_BASE`. The codes are
 host-independent, so pointing the list elsewhere is safe — but the file has to say
 so, or it reads as "this is what is on the paper", which would be false.
 
-The other half of the contract is structural, and `deploy/publish.sh` depends on
-it: two renderings with different bases must be **identical apart from the base
-string**, so the published repo can be proven to differ from the working copy only
-in its links.
+The other half of the contract is structural: two renderings with different bases
+must be **identical apart from the base string**, so a copy of the list served from
+another host can be shown to differ from the printed one in its links and nothing
+else.
 """
 from __future__ import annotations
 
@@ -25,7 +25,7 @@ ROWS = [
 
 
 def both_bases_erased(text: str) -> str:
-    """What publish.sh does: erase either hostname, so only the structure is left."""
+    """Erase either hostname, so only the structure is left to compare."""
     return text.replace(links.PRINTED_BASE, "<BASE>").replace(OTHER_BASE, "<BASE>")
 
 
@@ -49,7 +49,7 @@ def test_an_overridden_base_is_named_not_implied(base):
 
 
 def test_two_renderings_differ_only_in_the_base():
-    """This is the invariant deploy/publish.sh verifies on the real files."""
+    """The invariant the host-base rewrite rests on, checked on the real files."""
     printed = links.render(ROWS)
     elsewhere = links.render(ROWS, base=OTHER_BASE)
 
