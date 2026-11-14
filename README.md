@@ -1,7 +1,7 @@
 # BaggageGO
 
 <p align="center">
-  <img src="brand/icons/svg/baggagego-wordmark.svg" alt="BaggageGO" width="300">
+  <img src="brand/icons/svg/baggagego-icon.svg" alt="BaggageGO" width="300">
 </p>
 
 Lightweight passenger boarding demo for Cathay Hackathon 2026. Audience members open a
@@ -132,7 +132,7 @@ options and their persistence trade-offs, see [`deploy/gcp/README.md`](deploy/gc
 ## 繁體中文
 
 <p align="center">
-  <img src="brand/icons/svg/baggagego-wordmark.svg" alt="BaggageGO" width="300">
+  <img src="brand/icons/svg/baggagego-icon.svg" alt="BaggageGO" width="300">
 </p>
 
 **繁體中文** · [English](#baggagego)
