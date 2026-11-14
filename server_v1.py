@@ -1121,7 +1121,8 @@ A11Y_HEAD = """<script>
   try {
     var saved = JSON.parse(localStorage.getItem("bggo-a11y") || "{}");
     var size = String(saved.text || 1);
-    if (size !== "1" && size !== "2" && size !== "3") size = "1";
+    if (size === "3") size = "2";  // the largest size was removed; keep the reader large
+    if (size !== "1" && size !== "2") size = "1";
     document.documentElement.dataset.a11yText = size;
     if (saved.cb) document.documentElement.dataset.a11yCb = "on";
   } catch (e) {}
@@ -1143,17 +1144,17 @@ A11Y_ICON = (
 def a11y_html() -> str:
     """The reader's own two choices, hung under the app bar.
 
-    Text size is three radio steps — radio, not one cycling button, so the current
+    Text size is two radio steps — radio, not one cycling button, so the current
     step is visible without pressing it. Colour-blind mode is one switch. Both are
     stored on the device; this markup is only the control surface. The size is
-    three CSS rules keyed off `html[data-a11y-text]`, and colour-blind mode is a
+    two CSS rules keyed off `html[data-a11y-text]`, and colour-blind mode is a
     stylesheet state, so nothing here (or in the script) computes a colour, a
     level or an icon count.
     """
     radios = "".join(
         f'<label><input type="radio" name="a11y-text" id="a11y-text-{value}"'
         f' value="{value}"><span>{label}</span></label>'
-        for value, label in ((1, "Standard"), (2, "Large"), (3, "Larger"))
+        for value, label in ((1, "Standard"), (2, "Large"))
     )
     return f"""<div class="a11y">
   <button class="a11y-btn" id="a11y-toggle" type="button" aria-expanded="false" aria-controls="a11y-panel" aria-label="Accessibility options">{A11Y_ICON}</button>

@@ -60,7 +60,7 @@ body {
   background: var(--surface);
   color: var(--ink);
   font-family: var(--font);
-  /* 1rem, not a fixed 16px: the ticket's three text sizes are the ROOT font-size
+  /* 1rem, not a fixed 16px: the ticket's two text sizes are the ROOT font-size
      (see the accessibility block at the end), and a fixed px here would pin the
      body text and leave only the rem-sized pieces following the reader's choice */
   font-size: 1rem;
@@ -1198,7 +1198,7 @@ body.big .cabin {
 }
 
 /* -------------------------------------------------------- accessibility
- * The reader's own controls: three text sizes and a colour-blind mode. Both are
+ * The reader's own controls: two text sizes and a colour-blind mode. Both are
  * device preferences (localStorage), applied before paint by the inline head
  * script, so the stylesheet only has to answer two attributes on <html>.
  *
@@ -1216,7 +1216,6 @@ body.big .cabin {
 
 html[data-a11y-text="1"] { font-size: 100%; }
 html[data-a11y-text="2"] { font-size: 120%; }
-html[data-a11y-text="3"] { font-size: 140%; }
 
 .a11y { position: relative; display: flex; }
 
@@ -1259,7 +1258,7 @@ html[data-a11y-text="3"] { font-size: 140%; }
 .a11y-group { margin: 0 0 .9rem; padding: 0; border: 0; }
 .a11y-group legend { padding: 0 0 .45rem; color: var(--muted); font-size: .78rem; font-weight: 600; }
 
-.a11y-sizes { display: grid; grid-template-columns: repeat(3, 1fr); gap: .35rem; }
+.a11y-sizes { display: grid; grid-template-columns: repeat(2, 1fr); gap: .35rem; }
 
 .a11y-sizes label { position: relative; display: block; cursor: pointer; }
 /* the radio itself is visually hidden but still focusable, so the keyboard and a
@@ -1275,10 +1274,9 @@ html[data-a11y-text="3"] { font-size: 140%; }
   border-radius: 5px;
 }
 
-/* the three chips are labelled in increasing type, so the row itself is a preview */
+/* the two chips are labelled in increasing type, so the row itself is a preview */
 .a11y-sizes label:nth-child(1) span { font-size: .82rem; }
 .a11y-sizes label:nth-child(2) span { font-size: .95rem; }
-.a11y-sizes label:nth-child(3) span { font-size: 1.1rem; }
 
 .a11y-sizes input:checked + span { color: var(--accent); border-color: var(--accent); background: var(--wash); }
 .a11y-sizes input:focus-visible + span { outline: 2px solid var(--figure); outline-offset: 2px; }
@@ -1297,10 +1295,12 @@ html[data-a11y-text="3"] { font-size: 140%; }
  * the choice costs the board nothing and needs no re-render. The count rides the
  * `load-*` class the server already sets, so app.js re-pointing a zone's level
  * re-counts its icons for free — no script decides how many bags a zone shows.
- * The glyphs are drawn in ink rather than the zone's own colour: here the
- * silhouette is the channel, and ink is legible on all three pastel fills (and
- * would not be if the bag were painted the same green it sits on). The fill and
- * the border are untouched: this mode adds a mark, it never repaints the swatch.
+ * The glyphs are drawn in figure purple rather than the zone's own colour: here
+ * the silhouette is the channel, and `--figure` is this card's word for a mark you
+ * read (the advised ring is the same purple), so a bin mark never reads as another
+ * status colour. It clears 3:1 on all three pastel fills and 4.5:1 on two, and it
+ * does not look like flat black ink on a colour swatch. The fill and the border
+ * are untouched: this mode adds a mark, it never repaints the swatch.
  */
 
 body.card-page .bin-status { display: none; }
@@ -1315,7 +1315,7 @@ html[data-a11y-cb="on"] body.card-page .cabin-bin .bin-status {
   pointer-events: none;
 }
 
-html[data-a11y-cb="on"] body.card-page .bin-status svg { display: none; color: var(--ink); }
+html[data-a11y-cb="on"] body.card-page .bin-status svg { display: none; color: var(--figure); }
 
 html[data-a11y-cb="on"] body.card-page .bin-status .bs-bag {
   width: calc(var(--unit) * .72);
@@ -1337,5 +1337,5 @@ html[data-a11y-cb="on"] body.card-page .cabin-bin.load-red .bin-status .bs-bag:n
 
 html[data-a11y-cb="on"] body.card-page .cabin-bin.is-over .bin-status .bs-cross { display: block; }
 /* the bags stay counted but step back under the cross, so the two marks do not
-   merge into one silhouette in the same ink */
+   merge into one silhouette in the same purple */
 html[data-a11y-cb="on"] body.card-page .cabin-bin.is-over .bin-status .bs-bag { opacity: .35; }

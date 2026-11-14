@@ -2082,7 +2082,7 @@ def test_the_card_adds_its_own_marks_and_no_second_drawing():
 # --------------------------------------------------------- accessibility
 # The ticket page carries one control the board does not: the reader's own text
 # size and a colour-blind mode. Both are device preferences applied before paint;
-# neither is allowed to invent a colour or a bin level — the size is three root
+# neither is allowed to invent a colour or a bin level — the size is two root
 # font-size rules and the mode is a state that reveals server-rendered icons.
 
 def test_the_card_wears_an_accessibility_control(client):
@@ -2090,8 +2090,9 @@ def test_the_card_wears_an_accessibility_control(client):
     assert 'id="a11y-toggle"' in html and 'id="a11y-panel"' in html
     assert re.search(r'id="a11y-toggle"[^>]*aria-expanded="false"', html)
     assert re.search(r'id="a11y-toggle"[^>]*aria-controls="a11y-panel"', html)
-    for step in (1, 2, 3):
+    for step in (1, 2):
         assert f'id="a11y-text-{step}"' in html
+    assert 'id="a11y-text-3"' not in html, "the third size was removed"
     assert 'id="a11y-cb"' in html
     # the board is a projector the audience does not hold: no reader controls
     assert 'id="a11y-toggle"' not in client.get("/bggo/live").text
@@ -2108,11 +2109,14 @@ def test_the_readers_choice_is_applied_before_paint(client):
     assert "document.documentElement.dataset.a11yCb" in head
 
 
-def test_text_size_is_three_root_steps():
+def test_text_size_is_two_root_steps():
     css = (server_v1.STATIC_DIR / "style.css").read_text(encoding="utf-8")
     steps = re.findall(r'html\[data-a11y-text="(\d)"\]\s*{\s*font-size:\s*(\d+)%', css)
-    assert [value for value, _ in steps] == ["1", "2", "3"]
-    assert [int(percent) for _, percent in steps] == [100, 120, 140]
+    assert [value for value, _ in steps] == ["1", "2"]
+    assert [int(percent) for _, percent in steps] == [100, 120]
+    # the largest size was removed; an old choice of it has to land somewhere sane
+    head = server_v1.A11Y_HEAD
+    assert 'size === "3"' in head and 'size = "2"' in head
     # the root font-size is what scales, so the body must follow it rather than
     # pinning text at a fixed 16px
     body = re.search(r"\nbody\s*{([^}]*)\}", css).group(1)
@@ -2129,8 +2133,8 @@ def test_colourblind_mode_counts_the_bin_ramp():
     assert re.search(r'\.cabin-bin\.load-red\s+\.bin-status\s+\.bs-bag:nth-child\(-n\+3\)', cb)
     assert re.search(r'\.cabin-bin\.is-over\s+\.bin-status\s+\.bs-cross\s*{\s*display:\s*block', cb), \
         "the cross is not tied to past capacity"
-    # a mark, not a repaint: ink from a token, and no touch of the swatch
-    assert "color: var(--ink)" in cb
+    # a mark, not a repaint: figure purple from a token, and no touch of the swatch
+    assert "color: var(--figure)" in cb
     assert "mask-image" not in css, "a glyph is inlined with currentColor, not masked"
 
 

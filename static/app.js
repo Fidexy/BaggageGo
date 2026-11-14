@@ -26,7 +26,8 @@
     try {
       var saved = JSON.parse(window.localStorage.getItem(A11Y_KEY) || "{}");
       var size = String((saved && saved.text) || 1);
-      if (size !== "1" && size !== "2" && size !== "3") size = "1";
+      if (size === "3") size = "2";  // the largest size was removed; keep the reader large
+      if (size !== "1" && size !== "2") size = "1";
       return { text: size, cb: !!(saved && saved.cb) };
     } catch (e) {
       return { text: "1", cb: false };
@@ -56,7 +57,7 @@
   function a11ySync() {
     a11yApply(a11yState);
     if (a11yCb) a11yCb.checked = a11yState.cb;
-    for (var i = 1; i <= 3; i++) {
+    for (var i = 1; i <= 2; i++) {
       var radio = document.getElementById("a11y-text-" + i);
       if (radio) radio.checked = String(i) === a11yState.text;
     }
@@ -96,7 +97,7 @@
         a11yToggle.focus();
       }
     });
-    [1, 2, 3].forEach(function (step) {
+    [1, 2].forEach(function (step) {
       var radio = document.getElementById("a11y-text-" + step);
       if (!radio) return;
       radio.addEventListener("change", function () {
