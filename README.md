@@ -17,7 +17,6 @@ container.
 |---|---|---|
 | Live board | `/bggo/live` | the projector |
 | Passenger card | `/bggo/<CODE>` | the audience, via a printed QR |
-| Operator console | `/bggo/controls?k=…` | whoever is running the room |
 
 > [!NOTE]
 > **Hosted base URL** — `<!--repo-base-->https://sophon1.dedyn.io<!--/repo-base-->`
@@ -44,16 +43,6 @@ The Compose port is bound to `127.0.0.1` by default. To choose another host port
 ```bash
 BGGO_HOST_PORT=8095 docker compose up --build
 ```
-
-The live board and operator console are separate: the board is open, while the console
-requires its token. Print the console bookmark from the running Compose project with:
-
-```bash
-docker compose run --rm demo python server_v1.py --controls-url
-```
-
-> [!WARNING]
-> Treat the token in that URL as a secret. Do not share or commit it.
 
 ### Data persistence
 
@@ -146,7 +135,6 @@ options and their persistence trade-offs, see [`deploy/gcp/README.md`](deploy/gc
 |---|---|---|
 | 即時看板 | `/bggo/live` | 投影幕 |
 | 乘客登機證 | `/bggo/<CODE>` | 觀眾（經印刷的 QR code）|
-| 操作員控制台 | `/bggo/controls?k=…` | 現場負責人 |
 
 > [!NOTE]
 > **主機網址**見上方英文說明（Hosted base URL）。
@@ -172,16 +160,6 @@ Compose 的連接埠預設綁定於 `127.0.0.1`。如需改用其他主機連接
 ```bash
 BGGO_HOST_PORT=8095 docker compose up --build
 ```
-
-即時看板與操作員控制台是分開的：看板公開，控制台則需要其 token。可從執行中的 Compose
-專案印出控制台書籤：
-
-```bash
-docker compose run --rm demo python server_v1.py --controls-url
-```
-
-> [!WARNING]
-> 請將該網址中的 token 視為機密，切勿分享或提交至版本控制。
 
 #### 資料保存
 
