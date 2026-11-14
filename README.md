@@ -149,10 +149,10 @@ options and their persistence trade-offs, see [`deploy/gcp/README.md`](deploy/gc
 | 操作員控制台 | `/bggo/controls?k=…` | 現場負責人 |
 
 > [!NOTE]
-> **主機網址** — `https://sophon1.dedyn.io`
+> **主機網址**見上方英文說明（Hosted base URL）。
 >
-> - 即時看板：在網址後加上 `/bggo/live`
-> - 乘客登機證：在網址後加上 `/bggo/<CODE>` — 範例連結見 [`tickets.md`](tickets.md)
+> - 即時看板：在該網址後加上 `/bggo/live`
+> - 乘客登機證：在該網址後加上 `/bggo/<CODE>` — 範例連結見 [`tickets.md`](tickets.md)
 >
 > 伺服器架設於 homelab（自家伺服器）環境。示範當日會派發印有票券連結的登機證。
 
