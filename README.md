@@ -4,8 +4,8 @@
   <img src="brand/icons/svg/baggagego-icon.svg" alt="BaggageGO" width="300">
 </p>
 
-Lightweight passenger boarding demo for Cathay Hackathon 2026. Audience members open a
-boarding-pass link, choose their bags, and the live board updates for the pitch demo. It
+Lightweight passenger boarding demo for Cathay Hackathon 2026. Audience members scan the QR code on their
+boarding pass, choose their bags, and the live board updates for the pitch demo. It
 runs as a FastAPI application backed by SQLite and is packaged as a single Docker
 container.
 
@@ -126,23 +126,23 @@ options and their persistence trade-offs, see [`deploy/gcp/README.md`](deploy/gc
 
 **繁體中文** · [English](#baggagego)
 
-為 Cathay Hackathon 2026 而設的輕量級旅客登機示範。觀眾開啟登機證連結、選擇行李，投影幕
-上的即時看板隨即更新。應用程式以 FastAPI 編寫、使用 SQLite，並打包成單一 Docker 容器。
+為 Cathay Hackathon 2026 而設的輕量級旅客登機示範。觀眾掃描登機證上的 QR code、選擇行李，投影幕
+上的儀表板隨即更新。應用程式以 FastAPI 編寫、使用 SQLite，並打包成單一 Docker 容器。
 
 ### 示範
 
 | 介面 | 路徑 | 對象 |
 |---|---|---|
-| 即時看板 | `/bggo/live` | 投影幕 |
+| 儀表板 | `/bggo/live` | 投影幕 |
 | 乘客登機證 | `/bggo/<CODE>` | 觀眾（經印刷的 QR code）|
 
 > [!NOTE]
 > **主機網址**見上方英文說明（Hosted base URL）。
 >
-> - 即時看板：在該網址後加上 `/bggo/live`
+> - 儀表板：在該網址後加上 `/bggo/live`
 > - 乘客登機證：在該網址後加上 `/bggo/<CODE>` — 範例連結見 [`tickets.md`](tickets.md)
 >
-> 伺服器架設於 homelab（自家伺服器）環境。示範當日會派發印有票券連結的登機證。
+> 伺服器架設於自家環境。示範當日會派發印有票券連結的登機證。
 
 ### 以 Docker 執行
 
