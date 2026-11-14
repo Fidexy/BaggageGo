@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="6 10 52 54" width="64" height="64" fill="none" stroke="currentColor" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true">
+  <!-- Handbag — 0.25 units.
+       BaggageGO picker glyphs are DERIVED, not drawn from scratch: the kit's bag
+       language (rounded-rect body + arc handle) on the supplied symbol's 64-unit
+       grid, one identical stroke weight across all four, and only the proportions
+       and the handle type change — the size difference IS the information.
+       aria-hidden: every use sits next to the visible name of the bag. -->
+  <path stroke-width="3.4" d="M24.5 36H39.5A4.5 4.5 0 0 1 44 40.5V53.5A4.5 4.5 0 0 1 39.5 58H24.5A4.5 4.5 0 0 1 20 53.5V40.5A4.5 4.5 0 0 1 24.5 36Z"/>
+  <path stroke-width="3.4" d="M25 36A7 7 0 0 1 39 36"/>
+  <path stroke-width="2.8" d="M25 43H39"/>
+</svg>

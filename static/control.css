@@ -1,0 +1,77 @@
+/* BaggageGO controls — the operator console.
+ *
+ * Deliberately NOT part of the visual system: the brand rules govern what the
+ * audience sees, and this is the tool the operator drives backstage. It uses
+ * CSS named colours on purpose so the brand gate (which only reads literal hex)
+ * has nothing to object to, and it inherits the page font from style.css.
+ *
+ * The one exception is the bag dialog: `.picker-wrap`, `.picker`, `.bag`,
+ * `.stepper`, `.total` and `#confirm` all come from style.css, so the control
+ * page's "Which bags are you bringing?" is the same dialogue a QR scan opens.
+ */
+
+.controls-page .ctl-head {
+  padding: .9rem 1rem .4rem;
+  border-bottom: 1px solid gray;
+}
+.controls-page .ctl-head h1 { margin: 0 0 .2rem; font-size: 1.3rem; }
+.controls-page .ctl-counters { margin: 0; color: dimgray; }
+
+.controls-page .ctl-main { padding: .8rem 1rem 3rem; }
+
+.controls-page .ctl-bulk {
+  border: 1px solid gray;
+  background: whitesmoke;
+  padding: .7rem .8rem;
+  margin-bottom: .9rem;
+}
+.controls-page .ctl-bulk label { display: block; margin: .5rem 0; }
+.controls-page .ctl-bulk input[type="number"] { width: 5.5rem; }
+.controls-page .ctl-bulk textarea {
+  display: block;
+  width: 100%;
+  max-width: 40rem;
+  font-family: monospace;
+}
+.controls-page .ctl-status { margin: .5rem 0 0; color: darkgreen; min-height: 1.2em; }
+.controls-page .ctl-status.is-error { color: firebrick; }
+
+.controls-page .ctl-snapshot {
+  border: 1px solid gray;
+  background: whitesmoke;
+  padding: .7rem .8rem;
+  margin-bottom: .9rem;
+}
+.controls-page .ctl-snapshot label { margin-left: .6rem; }
+.controls-page .ctl-snap-note { margin-left: .6rem; color: dimgray; font-size: 12px; }
+.controls-page .ctl-search { margin: 0 0 .6rem; }
+
+.controls-page .ctl-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.controls-page .ctl-table th,
+.controls-page .ctl-table td {
+  border: 1px solid lightgray;
+  padding: 2px 6px;
+  text-align: left;
+  vertical-align: top;
+}
+.controls-page .ctl-table thead th { background: gainsboro; position: sticky; top: 0; }
+.controls-page .ctl-row.is-in { background: whitesmoke; }
+.controls-page .ctl-row[hidden] { display: none; }
+.controls-page .c-seat { font-weight: 700; }
+.controls-page .c-state { text-transform: uppercase; font-size: 11px; }
+.controls-page .c-hits { text-align: right; }
+.controls-page .c-code a { color: navy; }
+.controls-page .c-stow { white-space: nowrap; }
+.controls-page .c-stow.is-redirect { color: firebrick; }
+
+.controls-page button {
+  font: inherit;
+  font-size: 12px;
+  padding: 1px 6px;
+  cursor: pointer;
+}
+.controls-page button:disabled { color: gray; cursor: default; }

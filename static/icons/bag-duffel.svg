@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="6 10 52 54" width="64" height="64" fill="none" stroke="currentColor" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true">
+  <!-- Duffel bag — 0.75 units. Wider body, softer corners, one long top grip: reads
+       as the biggest bag by AREA rather than by height. -->
+  <path stroke-width="3.4" d="M20 34H44A8 8 0 0 1 52 42V50A8 8 0 0 1 44 58H20A8 8 0 0 1 12 50V42A8 8 0 0 1 20 34Z"/>
+  <path stroke-width="3.4" d="M20 34A12 12 0 0 1 44 34"/>
+  <path stroke-width="2.8" d="M18 46H46"/>
+</svg>

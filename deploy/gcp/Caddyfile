@@ -1,0 +1,28 @@
+# The frozen hostname from the printed boarding passes. TLS is automatic
+# (Let's Encrypt via HTTP-01 on :80) because the pass in someone's hand is
+# https:// — there is no reprinting 240 of them.
+#
+# SITE_ADDRESS comes from .env. Dry-run it locally with no domain at all (the
+# published ports are overridable because a laptop may already have 80/443):
+#   IMAGE=baggagego:local SITE_ADDRESS=http://localhost \
+#     CADDY_HTTP_PORT=8088 CADDY_HTTPS_PORT=8443 docker compose up
+
+{$SITE_ADDRESS} {
+	encode zstd gzip
+
+	# The QR opens /bggo/<CODE>, and every URL the app renders is absolute
+	# /bggo/..., so the path passes through unchanged — the same rule the NPM
+	# "custom location /bggo => 127.0.0.1:8091" used.
+	reverse_proxy demo:8091
+
+	# The bare hostname was the static marketing site (exited since 2026-11-05,
+	# so it 502s today). Land whoever opens it on the board instead of letting
+	# FastAPI answer 404.
+	@root path /
+	redir @root /bggo/live 302
+
+	log {
+		output stdout
+		format console
+	}
+}

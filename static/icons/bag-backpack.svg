@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="6 10 52 54" width="64" height="64" fill="none" stroke="currentColor" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true">
+  <!-- Backpack — 0.5 units.
+       Narrower and taller than the handbag, handle and lid seam across the top:
+       the rucksack profile, told by proportion rather than by extra parts. Two
+       arcs on the shoulders read as ears at picker size, which is why it is not
+       that; a small top loop read as a knob on a hat. -->
+  <path stroke-width="3.4" d="M27 30H37A6 6 0 0 1 43 36V52A6 6 0 0 1 37 58H27A6 6 0 0 1 21 52V36A6 6 0 0 1 27 30Z"/>
+  <path stroke-width="3.4" d="M26 30A6 6 0 0 1 38 30"/>
+  <path stroke-width="2.8" d="M21 39H43"/>
+  <path stroke-width="2.8" d="M27 46H37"/>
+</svg>

@@ -1,0 +1,51 @@
+# The front door for the FROZEN printed hostname, with the cloud copy as an
+# automatic fallback. This is the only file that makes printed passes survive the
+# homelab going down without reprinting anything.
+#
+# Traffic:  phone --https--> this Caddy --https--> homelab (NPM)      [normal]
+#                                        \--http---> demo (cloud)     [homelab down]
+#
+# The payload in every QR stays `https://sophon1.dedyn.io/bggo/<CODE>`. Only the
+# A record for that name moves — once — to point here instead of at the homelab.
+#
+# Env (see .env.example):
+#   SITE_HOST         sophon1.dedyn.io        the frozen name, verbatim
+#   HOMELAB_UPSTREAM  https://home.sophon1.dedyn.io   DDNS name for the home IP
+#   HOMELAB_SNI       sophon1.dedyn.io        what NPM's certificate is for
+#   FALLBACK_UPSTREAM demo:8091               the cloud copy, on this network
+
+{$SITE_HOST} {
+	encode zstd gzip
+
+	# Someone opening the bare hostname gets the board, not FastAPI's 404.
+	@root path /
+	redir @root /bggo/live 302
+
+	# Primary: the homelab. The audience's printed passes feed ITS board, so as
+	# long as it is up, it is the answer — never the copy.
+	handle {
+		reverse_proxy {$HOMELAB_UPSTREAM} {
+			# NPM matches on the Host/SNI it was configured for, so the hop has
+			# to keep presenting the frozen name, not the DDNS one.
+			header_up Host {$SITE_HOST}
+			transport http {
+				tls_server_name {$HOMELAB_SNI}
+				# Fail fast: a dead or black-holed homelab must not hang the phone.
+				# Both options live on the transport, not on reverse_proxy.
+				dial_timeout 3s
+				response_header_timeout 5s
+			}
+		}
+	}
+
+	# Homelab unreachable -> serve the cloud copy instead of an error page.
+	# The URI is preserved, so /bggo/<CODE> lands on the same code over there.
+	handle_errors 502 503 504 {
+		reverse_proxy {$FALLBACK_UPSTREAM}
+	}
+
+	log {
+		output stdout
+		format console
+	}
+}

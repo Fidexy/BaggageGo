@@ -1,0 +1,12 @@
+# python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# sqlite write-ahead sidecars (passengers.db itself is a kept artifact)
+*.db-wal
+*.db-shm
+
+# presenter snapshots: board exports and scratch, never part of the demo
+snapshots/

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="6 10 52 54" width="64" height="64" fill="none" stroke="currentColor" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true">
+  <!-- Small trolley case — 1 unit. Tall body, telescopic grip (two bars + a bar),
+       two wheels: a different handle TYPE, not just a bigger body. -->
+  <path stroke-width="3.4" d="M24.5 26H39.5A4.5 4.5 0 0 1 44 30.5V49.5A4.5 4.5 0 0 1 39.5 54H24.5A4.5 4.5 0 0 1 20 49.5V30.5A4.5 4.5 0 0 1 24.5 26Z"/>
+  <path stroke-width="2.8" d="M26 16V26"/>
+  <path stroke-width="2.8" d="M38 16V26"/>
+  <path stroke-width="2.8" d="M26 16H38"/>
+  <circle stroke-width="2.8" cx="21.5" cy="57" r="3.2"/>
+  <circle stroke-width="2.8" cx="42.5" cy="57" r="3.2"/>
+  <path stroke-width="2.8" d="M25 40H39"/>
+</svg>

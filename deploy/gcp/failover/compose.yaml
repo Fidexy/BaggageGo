@@ -1,0 +1,48 @@
+# The front door + the cloud fallback, on one small VM.
+#
+#   cd /opt/baggagego && sudo docker compose up -d
+#
+# This REPLACES deploy/gcp/compose.yaml when you want the frozen printed hostname
+# to fail over to the cloud copy. Use the plain one if the homelab keeps owning
+# the name (the "two independent hosts" model).
+#
+# Read .env.example first: the homelab must stop owning the A record for
+# sophon1.dedyn.io, or this front door is never reached.
+
+name: baggagego
+
+services:
+  front:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"          # HTTP-01 + redirect
+      - "443:443"
+    environment:
+      SITE_HOST: ${SITE_HOST:?set SITE_HOST in .env — the frozen printed hostname}
+      HOMELAB_UPSTREAM: ${HOMELAB_UPSTREAM:?set HOMELAB_UPSTREAM in .env}
+      HOMELAB_SNI: ${HOMELAB_SNI:?set HOMELAB_SNI in .env}
+      FALLBACK_UPSTREAM: ${FALLBACK_UPSTREAM:-demo:8091}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data        # the certificate for the frozen name lives here
+      - caddy-config:/config
+    depends_on:
+      - demo
+
+  # The fallback origin: the same image as everywhere else, with its own board.
+  demo:
+    image: ${IMAGE:?set IMAGE in .env}
+    restart: unless-stopped
+    environment:
+      BGGO_DB: /data/passengers.db
+      BGGO_PORT: "8091"
+    volumes:
+      - bggo-data:/data
+    expose:
+      - "8091"
+
+volumes:
+  bggo-data:
+  caddy-data:
+  caddy-config:

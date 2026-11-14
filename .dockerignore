@@ -1,0 +1,34 @@
+# Build context for the demo image. The context is this folder only (the demo is
+# self-contained, brand kit included), so this file answers to nobody else and
+# does not need to stay in sync with the repo's .gitignore / .ignore.
+#
+# NOTE: this is a separate file from .gitignore on purpose — .gitignore governs
+# the repo, this governs the image.
+
+# the dev virtualenv: shebangs embed an absolute host path, and the image builds
+# its own from requirements.txt
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# sqlite sidecars: WAL files are runtime state, never baked into an image
+*.db-wal
+*.db-shm
+
+# presenter scratch, not part of the demo
+snapshots/
+make_flight_snapshot.py
+
+# the frozen ticket-link list and the plan docs are read on GitHub, not at runtime
+tickets.md
+STAGE1_PLAN.md
+STAGE2_SEATMAP_PLAN.md
+README.md
+
+# container plumbing itself (docker/ stays: the entrypoint is COPY'd in)
+Dockerfile
+docker-compose.yml
+.dockerignore
+# deploy/ is how the image gets to a cloud, not what is in it
+deploy/

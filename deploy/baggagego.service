@@ -1,0 +1,26 @@
+[Unit]
+# Legacy since 2026-11-11: the demo now runs as the `baggagego:local` container
+# (`docker compose up -d` in pitch-demo/). This unit was stopped and disabled on
+# that date because both want 127.0.0.1:8091. Kept only as a rollback path —
+# `docker compose down` first if it is ever enabled again.
+Description=BaggageGO stage 1 gate (FastAPI + SQLite, 127.0.0.1:8091)
+Documentation=file:///home/leonidas/Hackathon/pitch-demo/README.md
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=leonidas
+Group=leonidas
+WorkingDirectory=/home/leonidas/Hackathon/pitch-demo
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/home/leonidas/Hackathon/pitch-demo/.venv/bin/uvicorn \
+    server_v1:app --host 127.0.0.1 --port 8091 --log-level info
+Restart=always
+RestartSec=2
+# the db is the only state; give it a moment to finish the write on shutdown
+KillSignal=SIGINT
+TimeoutStopSec=10
+
+[Install]
+WantedBy=multi-user.target
