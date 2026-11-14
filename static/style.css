@@ -807,14 +807,18 @@ body.card-page {
    to put a bag and not a load of its own; figure purple, because that is this
    card's word for "look here" (cyan stays on the mark, where the brand keeps it).
    The dashes travel around the ring — the one thing on the drawing that moves —
-   so they are drawn as four repeating-gradient edges rather than an outline, and
-   they sit just outside the zone so the load colour under them stays readable.
+   so they are drawn as four repeating-gradient edges rather than an outline.
+   They are drawn ON the zone's own rectangle (Davis, 2026-11-15), over its load
+   edge and inside the lane, because the ring is the drawer's mark on the
+   compartment you are being sent to; standing off outside it, the ring read as
+   though it were ringing the gutter instead. `-1px` is the lane's own border
+   hairline, so the dashes land on the load edge and not beside it.
    Motion is gated: anyone who asked for less gets the same dashes standing still. */
 .cabin-card .cabin-bin.is-advised::before {
   content: "";
   position: absolute;
-  inset: calc(var(--unit) * -.3);
-  border-radius: calc(var(--unit) * .3);
+  inset: -1px;
+  border-radius: calc(var(--unit) * .12 + 1px);
   pointer-events: none;
   background-image:
     repeating-linear-gradient(90deg, var(--figure) 0 .34rem, transparent .34rem .68rem),

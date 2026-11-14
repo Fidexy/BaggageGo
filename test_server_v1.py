@@ -1331,11 +1331,20 @@ def test_the_card_draws_the_fuselage_around_the_map():
 def test_the_advised_zone_marches_and_rests_when_asked():
     """The suggested zone's dashes travel around it, drawn as four gradient
     edges because an outline's dashes cannot march — and the motion is gated
-    behind prefers-reduced-motion, where the same dashes stand still."""
+    behind prefers-reduced-motion, where the same dashes stand still.
+
+    They are drawn ON the zone's own rectangle (Davis, 2026-11-15): the ring
+    overlays the lane's load edge instead of standing off outside it, where it
+    read as a ring around the door gutter rather than a mark on the compartment.
+    `-1px` is that edge — the lane's 1px border hairline — so the dashes start
+    at the rectangle's border box and spill nothing into the lane's neighbours."""
     css = (server_v1.STATIC_DIR / "style.css").read_text(encoding="utf-8")
     ring = re.search(r"\.cabin-card \.cabin-bin\.is-advised::before\s*\{([^}]*)\}", css)
     assert ring, "the advised ring's rule moved — this test is now blind"
     assert "repeating-linear-gradient" in ring.group(1), "the dashes are drawn edges, not an outline"
+    assert re.search(r"inset:\s*-1px", ring.group(1)), (
+        "the ring must sit on the rectangle's border box; a negative multiple of "
+        "--unit pushes it out into the gutter again")
     assert "@keyframes cabin-ants" in css
     gated = re.search(
         r"@media \(prefers-reduced-motion: no-preference\) \{\s*"
