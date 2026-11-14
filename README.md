@@ -1,6 +1,6 @@
 # BaggageGO
 
-Lightweight passenger boarding demo for a Cathay Hackathon 2026. Audience members open a
+Lightweight passenger boarding demo for Cathay Hackathon 2026. Audience members open a
 boarding-pass link, choose their bags, and the live board updates for the pitch demo. It
 runs as a FastAPI application backed by SQLite and is packaged as a single Docker
 container.
