@@ -1,12 +1,47 @@
 # python
 .venv/
 __pycache__/
-*.pyc
+*.py[cod]
 .pytest_cache/
 
-# sqlite write-ahead sidecars (passengers.db itself is a kept artifact)
+# env files. docker compose reads ./.env implicitly, and deploy/gcp/.env is the
+# VM's IMAGE/SITE_ADDRESS, written from .env.example by deploy-vm.sh at deploy
+# time. Never committed — the .env.example templates are.
+.env
+
+# sqlite sidecars: the WAL pair while the app runs (server_v1.py sets
+# journal_mode=WAL), a rollback journal if it is ever opened without WAL.
+# passengers.db itself is a kept artifact — the seed the image carries.
 *.db-wal
 *.db-shm
+*.db-journal
 
 # presenter snapshots: board exports and scratch, never part of the demo
 snapshots/
+
+# ── working docs, not part of the demo ─────────────────────────────────────
+# Agent scope, the open work and the two stage plans: ours, not the repo's. None
+# is read by the running demo (the Dockerfile copies an explicit file list) and
+# none is named in the README's project layout. The files stay on disk, untracked
+# — the pattern ~/Hackathon uses for its deprecated trees — so publish.sh, which
+# compares working trees and not indexes, sees no drift.
+# NOT here on purpose: README.md and the deploy/ runbooks are the published
+# repo's front page and its deployment notes.
+AGENTS.md
+TODO.md
+STAGE1_PLAN.md
+STAGE2_SEATMAP_PLAN.md
+
+# editor / OS litter
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*~
+*.bak
+*.orig
+*.rej
+
+# local run logs
+*.log

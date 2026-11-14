@@ -20,7 +20,8 @@ __pycache__/
 snapshots/
 make_flight_snapshot.py
 
-# the frozen ticket-link list and the plan docs are read on GitHub, not at runtime
+# the frozen ticket-link list and the README are read on GitHub; the plan docs stay
+# in the working tree only (untracked) — none of them is baked into the image
 tickets.md
 STAGE1_PLAN.md
 STAGE2_SEATMAP_PLAN.md
