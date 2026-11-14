@@ -1,4 +1,11 @@
 #!/usr/bin/env bash
+#
+# SUPERSEDED 2026-11-15 (Davis): there is no mirror. `~/Hackathon/pitch-demo` **is**
+# the submitted repo (origin Fidexy/BaggageGo-A, branch main) — commit and push from
+# there; `~/BaggageGo` is a dead copy nobody should touch. Kept for history only:
+# `--check` now compares a live tree against a stale one, so its DRIFT report is
+# expected and means nothing.
+#
 # Publish the working copy to the submitted repo — and prove that nothing else differs.
 #
 #   ./deploy/publish.sh --check                      # verify the invariant, change nothing
