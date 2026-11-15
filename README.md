@@ -19,7 +19,7 @@ container.
 | Passenger card | `/bggo/<CODE>` | the audience, via a printed QR |
 
 > [!NOTE]
-> **Hosted base URL** — `<!--repo-base-->https://sophon1.dedyn.io<!--/repo-base-->`
+> **Hosted base URL** — <!--repo-base-->https://sophon1.dedyn.io<!--/repo-base-->
 >
 > - Live board: append `/bggo/live`
 > - Passenger card: append `/bggo/<CODE>` — sample links are listed in [`tickets.md`](tickets.md)
